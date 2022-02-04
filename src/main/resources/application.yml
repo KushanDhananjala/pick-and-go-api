@@ -1,0 +1,34 @@
+# Server properties
+server:
+  port: 8080
+
+# Database Properties
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sdp_cw
+    username: root
+    password: 123456
+    test-on-borrow: true
+    validation-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+
+# SMS Properties
+notify:
+  sms:
+    url: https://app.notify.lk/api/v1/send
+    user_id: 10829
+    api_key: s4BMu9y7r8T2uZ7UU828
+    sender_id: NotifyDEMO
