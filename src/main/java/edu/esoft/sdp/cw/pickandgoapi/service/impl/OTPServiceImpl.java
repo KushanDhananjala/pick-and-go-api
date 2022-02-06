@@ -66,7 +66,6 @@ public class OTPServiceImpl implements OTPService {
 
         throw new NotFoundException("OTP not found for mobile number : " + mobileNo);
 
-
     }
 
     @Override

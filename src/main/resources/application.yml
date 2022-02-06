@@ -24,6 +24,15 @@ spring:
               - POST
               - PUT
               - DELETE
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kushan.microsoft16@gmail.com
+    password: kushan@microsoft
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.gmail.com
 
 # SMS Properties
 notify:
@@ -32,3 +41,8 @@ notify:
     user_id: 10829
     api_key: s4BMu9y7r8T2uZ7UU828
     sender_id: NotifyDEMO
+
+# App Properties
+cw:
+  jwtSecret: sdpcw1!E115169087
+  jwtExpirationMs: 86400000
