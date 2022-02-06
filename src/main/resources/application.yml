@@ -5,9 +5,9 @@ server:
 # Database Properties
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/sdp_cw
-    username: root
-    password: 123456
+    url: jdbc:mysql://database-1.cg7lgna6rvpa.eu-west-2.rds.amazonaws.com/pick_and_go
+    username: admin
+    password: TJ4SHxJ2xCEN4wfdKIE5
     test-on-borrow: true
     validation-query: SELECT 1
   jpa:
