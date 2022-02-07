@@ -1,6 +1,8 @@
 # Server properties
 server:
   port: 8080
+  servlet:
+    context-path: "/api/v1"
 
 # Database Properties
 spring:
