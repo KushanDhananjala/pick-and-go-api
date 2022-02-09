@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/api/v1/centers")
+@RequestMapping(value = "/centers")
 @RequiredArgsConstructor
 public class CenterController {
 
