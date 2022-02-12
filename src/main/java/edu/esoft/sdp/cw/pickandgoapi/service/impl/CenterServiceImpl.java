@@ -1,19 +1,21 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
-import edu.esoft.sdp.cw.pickandgoapi.dto.CenterDTO;
-import edu.esoft.sdp.cw.pickandgoapi.entity.Center;
-import edu.esoft.sdp.cw.pickandgoapi.enums.ActiveStatus;
-import edu.esoft.sdp.cw.pickandgoapi.repository.CenterRepository;
-import edu.esoft.sdp.cw.pickandgoapi.service.CenterService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import edu.esoft.sdp.cw.pickandgoapi.dto.CenterDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.Center;
+import edu.esoft.sdp.cw.pickandgoapi.enums.ActiveStatus;
+import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import edu.esoft.sdp.cw.pickandgoapi.repository.CenterRepository;
+import edu.esoft.sdp.cw.pickandgoapi.service.CenterService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -24,7 +26,7 @@ public class CenterServiceImpl implements CenterService {
 
   @Override
   @Transactional(propagation = Propagation.REQUIRED)
-  public CenterDTO saveOrUpdate(final CenterDTO centerDTO) throws Exception {
+  public CenterDTO saveOrUpdate(final CenterDTO centerDTO) {
 
     if (centerDTO.getRegistrationId() != null) {
       final Optional<Center> optionalCenter =
@@ -46,7 +48,7 @@ public class CenterServiceImpl implements CenterService {
   }
 
   @Override
-  public List<CenterDTO> getAllActiveCenters() throws Exception {
+  public List<CenterDTO> getAllActiveCenters() {
 
     return centerRepository.findAllByIsActive(ActiveStatus.IsActive.status).stream()
         .map(this::convertCenterToCenterDto)
@@ -54,33 +56,35 @@ public class CenterServiceImpl implements CenterService {
   }
 
   @Override
-  public List<CenterDTO> getAllInActiveCenters() throws Exception {
+  public List<CenterDTO> getAllInActiveCenters() {
     return centerRepository.findAllByIsActive(ActiveStatus.IsInActive.status).stream()
         .map(this::convertCenterToCenterDto)
         .collect(Collectors.toList());
   }
 
   @Override
-  public CenterDTO getCenterById(final Long registrationId) throws Exception {
+  public CenterDTO getCenterById(final Long registrationId) {
 
     return convertCenterToCenterDto(
         centerRepository
             .findById(registrationId)
             .orElseThrow(
                 () ->
-                    new RuntimeException(
+                    new NotFoundException(
                         "Center not found for registrationId: " + registrationId)));
   }
 
   @Override
   @Transactional(propagation = Propagation.REQUIRED)
-  public CenterDTO deleteCenter(final Long registrationId) throws Exception {
-    final Optional<Center> optionalCenter = centerRepository.findById(registrationId);
-    if (!optionalCenter.isPresent()) {
-      throw new RuntimeException("Center not found for registrationId: " + registrationId);
-    }
+  public CenterDTO deleteCenter(final Long registrationId) {
+    final Center center =
+        centerRepository
+            .findById(registrationId)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Center not found for registrationId: " + registrationId));
 
-    final Center center = optionalCenter.get();
     center.setIsActive(ActiveStatus.IsInActive.status);
 
     return convertCenterToCenterDto(centerRepository.save(center));

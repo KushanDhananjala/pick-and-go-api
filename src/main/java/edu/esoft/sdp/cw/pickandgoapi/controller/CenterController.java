@@ -28,25 +28,17 @@ public class CenterController {
 
   @PostMapping
   public ResponseEntity<CenterDTO> saveOrUpdate(@RequestBody final CenterDTO centerDTO) {
-    try {
-      return ResponseEntity.ok(centerService.saveOrUpdate(centerDTO));
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      return null;
-    }
+
+    return ResponseEntity.ok(centerService.saveOrUpdate(centerDTO));
   }
 
   @GetMapping(value = "/{status}")
   public ResponseEntity<List<CenterDTO>> getAllActiveCenters(@PathVariable String status) {
-    try {
-      return ResponseEntity.ok(
-          "ACTIVE".equalsIgnoreCase(status)
-              ? centerService.getAllActiveCenters()
-              : centerService.getAllInActiveCenters());
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      return null;
-    }
+
+    return ResponseEntity.ok(
+        "ACTIVE".equalsIgnoreCase(status)
+            ? centerService.getAllActiveCenters()
+            : centerService.getAllInActiveCenters());
   }
 
   @GetMapping(value = "/{registrationId}")

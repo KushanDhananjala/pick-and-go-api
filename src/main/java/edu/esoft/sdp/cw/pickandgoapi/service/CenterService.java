@@ -1,18 +1,18 @@
 package edu.esoft.sdp.cw.pickandgoapi.service;
 
-import edu.esoft.sdp.cw.pickandgoapi.dto.CenterDTO;
-
 import java.util.List;
+
+import edu.esoft.sdp.cw.pickandgoapi.dto.CenterDTO;
 
 public interface CenterService {
 
-  CenterDTO saveOrUpdate(CenterDTO centerDTO) throws Exception;
+  CenterDTO saveOrUpdate(CenterDTO centerDTO);
 
-  List<CenterDTO> getAllActiveCenters() throws Exception;
+  List<CenterDTO> getAllActiveCenters();
 
-  List<CenterDTO> getAllInActiveCenters() throws Exception;
+  List<CenterDTO> getAllInActiveCenters();
 
-  CenterDTO getCenterById(Long registrationId) throws Exception;
+  CenterDTO getCenterById(Long registrationId);
 
-  CenterDTO deleteCenter(Long registrationId) throws Exception;
+  CenterDTO deleteCenter(Long registrationId);
 }
