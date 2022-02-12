@@ -2,12 +2,17 @@ package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
 import edu.esoft.sdp.cw.pickandgoapi.dto.Mail;
 import edu.esoft.sdp.cw.pickandgoapi.dto.UserDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.Center;
+import edu.esoft.sdp.cw.pickandgoapi.entity.CenterUser;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Role;
 import edu.esoft.sdp.cw.pickandgoapi.entity.User;
 import edu.esoft.sdp.cw.pickandgoapi.enums.ERole;
+import edu.esoft.sdp.cw.pickandgoapi.enums.UserStatus;
 import edu.esoft.sdp.cw.pickandgoapi.payload.request.ResetPasswordRequest;
 import edu.esoft.sdp.cw.pickandgoapi.payload.request.SignupRequest;
 import edu.esoft.sdp.cw.pickandgoapi.payload.response.MessageResponse;
+import edu.esoft.sdp.cw.pickandgoapi.repository.CenterRepository;
+import edu.esoft.sdp.cw.pickandgoapi.repository.CenterUserRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.RoleRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
 import edu.esoft.sdp.cw.pickandgoapi.service.EmailService;
@@ -35,8 +40,8 @@ public class UserRegisterServiceImpl implements UserRegisterService {
     final RoleRepository roleRepository;
     final PasswordEncoder encoder;
     final EmailService emailService;
-//    final CenterRepository centerRepository;
-//    final CenterUserRepository centerUserRepository;
+    final CenterRepository centerRepository;
+    final CenterUserRepository centerUserRepository;
 
     @Override
     public ResponseEntity<?> createUser(SignupRequest signupRequest) {
@@ -73,12 +78,28 @@ public class UserRegisterServiceImpl implements UserRegisterService {
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(headOffice);
                         userEntity.setType(String.valueOf(ERole.ROLE_HEAD_OFFICE_MANAGER));
+                        userEntity.setStatus(String.valueOf(UserStatus.A));
+                        break;
+                    case "paying-officer":
+                        Role payingOfficer = roleRepository.findByName(ERole.ROLE_PAYING_OFFICER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(payingOfficer);
+                        userEntity.setType(String.valueOf(ERole.ROLE_PAYING_OFFICER));
+                        userEntity.setStatus(String.valueOf(UserStatus.A));
                         break;
                     case "center-manager":
                         Role centerManager = roleRepository.findByName(ERole.ROLE_CENTER_MANAGER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(centerManager);
                         userEntity.setType(String.valueOf(ERole.ROLE_CENTER_MANAGER));
+                        userEntity.setStatus(String.valueOf(UserStatus.A));
+                        break;
+                    case "rider":
+                        Role rider = roleRepository.findByName(ERole.ROLE_RIDER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(rider);
+                        userEntity.setType(String.valueOf(ERole.ROLE_RIDER));
+                        userEntity.setStatus(String.valueOf(UserStatus.P));
                         break;
                     default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
@@ -91,37 +112,36 @@ public class UserRegisterServiceImpl implements UserRegisterService {
         userEntity.setRoles(roles);
         userRepository.save(userEntity);
 
-//        if (String.valueOf(ERole.ROLE_CENTER_MANAGER).equals(userEntity.getType()) ||
-//                String.valueOf(ERole.ROLE_PAYING_OFFICER).equals(userEntity.getType())) {
-//
-//            Center center = centerRepository.getById(signupRequest.getRegistrationId());
-//
-//            CenterUser centerUser = new CenterUser();
-//            centerUser.setUser(userEntity);
-//            centerUser.setPwReset(false);
-//            centerUser.setCenter(center);
-//            centerUser.setTempPw(generateTempPassword());
-//
-//            centerUserRepository.save(centerUser);
-//
-//            // Email configs
-//            Mail mail = new Mail();
-//            mail.setMailTo(signupRequest.getEmail());
-//            mail.setSubject("New User Creation for account - " + signupRequest.getUsername());
-//            Map<String, Object> model = new HashMap<>();
-//            model.put("title", "New User Password Change");
-//            model.put("tempPw", centerUser.getTempPw());
-//            model.put("resetUrl", ApplicationURL.RESET_URL_FRONTEND);
-//            mail.setProps(model);
-//
-//            try {
-//                emailService.sendEmail(mail, "password-reset");
-//            } catch (MessagingException e) {
-//                e.printStackTrace();
-//                log.error(e.getMessage());
-//            }
-//
-//        }
+        if (String.valueOf(ERole.ROLE_CENTER_MANAGER).equals(userEntity.getType())) {
+
+            Center center = centerRepository.getById(signupRequest.getRegistrationId());
+
+            CenterUser centerUser = new CenterUser();
+            centerUser.setUser(userEntity);
+            centerUser.setPwReset(false);
+            centerUser.setCenter(center);
+            centerUser.setTempPw(generateTempPassword());
+
+            centerUserRepository.save(centerUser);
+
+            // Email configs
+            Mail mail = new Mail();
+            mail.setMailTo(signupRequest.getEmail());
+            mail.setSubject("New User Creation for account - " + signupRequest.getUsername());
+            Map<String, Object> model = new HashMap<>();
+            model.put("title", "New User Password Change");
+            model.put("tempPw", centerUser.getTempPw());
+            model.put("resetUrl", "http://localhost:4200/reset-password");
+            mail.setProps(model);
+
+            try {
+                emailService.sendEmail(mail, "password-reset");
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                log.error(e.getMessage());
+            }
+
+        }
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 
@@ -130,25 +150,23 @@ public class UserRegisterServiceImpl implements UserRegisterService {
     @Override
     public ResponseEntity<?> centerUserPasswordChange(ResetPasswordRequest resetPasswordRequest) {
 
-//        User existingUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
-//        CenterUser centerUser = centerUserRepository.findCenterUserByUserId(existingUser.getId());
-//
-//        if (!centerUser.getTempPw().equals(resetPasswordRequest.getTempPassword())) {
-//            return ResponseEntity
-//                    .badRequest()
-//                    .body(new MessageResponse("Error: Entered temporary password is invalid !"));
-//        }
-//
-//        existingUser.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
-//        centerUser.setPwReset(true);
-//        centerUser.setTempPw("");
-//
-//        userRepository.save(existingUser);
-//        centerUserRepository.save(centerUser);
-//
-//        return ResponseEntity.ok(new MessageResponse("Password changed successfully!"));
+        User existingUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
+        CenterUser centerUser = centerUserRepository.findCenterUserByUserId(existingUser.getId());
 
-        return null;
+        if (!centerUser.getTempPw().equals(resetPasswordRequest.getTempPassword())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Entered temporary password is invalid !"));
+        }
+
+        existingUser.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
+        centerUser.setPwReset(true);
+        centerUser.setTempPw("");
+
+        userRepository.save(existingUser);
+        centerUserRepository.save(centerUser);
+
+        return ResponseEntity.ok(new MessageResponse("Password changed successfully!"));
     }
 
     @Override

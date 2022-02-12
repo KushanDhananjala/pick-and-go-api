@@ -18,6 +18,7 @@ public class UserDTO {
     private String password;
     private Set<Role> roles;
     private String userProfileUrl;
+    private String status;
 
     public UserDTO(Long id, String username, String email, Set<Role> roles, String userProfileUrl) {
         this.id = id;
