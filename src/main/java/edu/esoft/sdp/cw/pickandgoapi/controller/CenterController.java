@@ -32,7 +32,7 @@ public class CenterController {
     return ResponseEntity.ok(centerService.saveOrUpdate(centerDTO));
   }
 
-  @GetMapping(value = "/{status}")
+  @GetMapping(value = "/by-status/{status}")
   public ResponseEntity<List<CenterDTO>> getAllActiveCenters(@PathVariable String status) {
 
     return ResponseEntity.ok(

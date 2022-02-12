@@ -8,7 +8,6 @@ import java.time.Instant;
 public class CenterDTO {
   private Long registrationId;
   private String name;
-  private double capacity;
   private float latitude;
   private float longitude;
   private int isActive;
