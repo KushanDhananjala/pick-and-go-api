@@ -130,6 +130,14 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     }
   }
 
+  @Override
+  public void updateStatus(String deliveryRequestInternalId, DeliveryRequestStatus status) {
+    final DeliveryRequest deliveryRequest = getDeliveryRequest(deliveryRequestInternalId);
+
+    deliveryRequest.setStatus(status);
+    deliveryRequestRepository.save(deliveryRequest);
+  }
+
   private DeliveryRequest convertDeliveryRequestDTToDeliveryRequest(
       final DeliveryRequestDTO deliveryRequestDTO) {
     final DeliveryRequest deliveryRequest = new DeliveryRequest();
