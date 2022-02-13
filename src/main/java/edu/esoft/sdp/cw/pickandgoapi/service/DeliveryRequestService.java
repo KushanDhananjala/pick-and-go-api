@@ -8,4 +8,6 @@ public interface DeliveryRequestService {
   DeliveryResponseDTO createDeliveryRequest(DeliveryRequestDTO deliveryRequest);
 
   DeliveryResponseDTO getDeliveryRequestByInternalId(String internalId);
+
+  void assignRider(String deliveryRequestInternalId, String riderUserName);
 }

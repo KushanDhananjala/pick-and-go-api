@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import edu.esoft.sdp.cw.pickandgoapi.dto.DeliveryRequestDTO;
@@ -14,7 +15,9 @@ import edu.esoft.sdp.cw.pickandgoapi.entity.DeliveryRequest;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Item;
 import edu.esoft.sdp.cw.pickandgoapi.entity.User;
 import edu.esoft.sdp.cw.pickandgoapi.enums.DeliveryRequestStatus;
+import edu.esoft.sdp.cw.pickandgoapi.enums.ERole;
 import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import edu.esoft.sdp.cw.pickandgoapi.exception.PickAndGoBadRequest;
 import edu.esoft.sdp.cw.pickandgoapi.repository.CustomerRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.DeliveryRequestRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.ItemRepository;
@@ -86,6 +89,28 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
   @Override
   public DeliveryResponseDTO getDeliveryRequestByInternalId(final String internalId) {
     return convertDeliveryRequestTODeliveryResponseDTO(getDeliveryRequest(internalId));
+  }
+
+  @Override
+  public void assignRider(final String deliveryRequestInternalId, final String riderUserName) {
+    final DeliveryRequest deliveryRequest = getDeliveryRequest(deliveryRequestInternalId);
+
+    final User rider =
+        userRepository
+            .findByUsername(riderUserName)
+            .orElseThrow(
+                () ->
+                    new UsernameNotFoundException(
+                        "User Not Found with username: " + riderUserName));
+    if (!CollectionUtils.isEmpty(rider.getRoles())
+        && rider.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_RIDER))) {
+      deliveryRequest.setRider(rider);
+      deliveryRequest.setStatus(DeliveryRequestStatus.DRIVER_ASSIGN);
+      deliveryRequestRepository.save(deliveryRequest);
+    } else {
+      throw new PickAndGoBadRequest(
+          "Unable to find User With Rider Role for userName :" + riderUserName);
+    }
   }
 
   private DeliveryRequest convertDeliveryRequestDTToDeliveryRequest(
