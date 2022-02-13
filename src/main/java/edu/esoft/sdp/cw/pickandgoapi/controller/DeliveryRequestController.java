@@ -1,5 +1,7 @@
 package edu.esoft.sdp.cw.pickandgoapi.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -57,5 +59,11 @@ public class DeliveryRequestController {
       @RequestBody final DeliveryRequestStatusUpdateRequest request) {
     deliveryRequestService.updateStatus(internalId, request.getStatus());
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @PatchMapping("/status/{status}")
+  public ResponseEntity<List<DeliveryResponseDTO>> getDeliveryStatusByStatus(
+      @PathVariable final String status) {
+    return ResponseEntity.ok(deliveryRequestService.getRequestsByStatus(status));
   }
 }

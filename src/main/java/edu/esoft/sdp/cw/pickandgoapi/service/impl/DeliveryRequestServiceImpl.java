@@ -1,6 +1,8 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -78,34 +80,13 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     request.setStatus(DeliveryRequestStatus.PENDING);
     final DeliveryRequest saveRequest = deliveryRequestRepository.save(request);
 
-    final DeliveryResponseDTO response = convertDeliveryRequestTODeliveryResponseDTO(saveRequest);
-
-    if (saveRequest.getUser() != null) {
-      response.setUserName(saveRequest.getUser().getUsername());
-    }
-    response.setItem(itemService.convertItemToItemDTO(item));
-    response.setCustomer(customerService.convertCustomerToCustomerDTO(customer));
-    return response;
+    return convertDeliveryRequestTODeliveryResponseDTO(saveRequest);
   }
 
   @Override
   public DeliveryResponseDTO getDeliveryRequestByInternalId(final String internalId) {
     final DeliveryRequest deliveryRequest = getDeliveryRequest(internalId);
-    final DeliveryResponseDTO response =
-        convertDeliveryRequestTODeliveryResponseDTO(deliveryRequest);
-
-    response.setItem(itemService.convertItemToItemDTO(deliveryRequest.getItem()));
-    response.setCustomer(
-        customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
-
-    if (deliveryRequest.getUser() != null) {
-      response.setUserName(deliveryRequest.getUser().getUsername());
-    }
-    if (deliveryRequest.getRider() != null) {
-      response.setRider(userRegisterService.convertUserToUserDTO(deliveryRequest.getRider()));
-    }
-
-    return response;
+    return convertDeliveryRequestTODeliveryResponseDTO(deliveryRequest);
   }
 
   @Override
@@ -139,6 +120,13 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     deliveryRequestRepository.save(deliveryRequest);
   }
 
+  @Override
+  public List<DeliveryResponseDTO> getRequestsByStatus(final String status) {
+    return deliveryRequestRepository.findAllByStatus(DeliveryRequestStatus.valueOf(status)).stream()
+        .map(this::convertDeliveryRequestTODeliveryResponseDTO)
+        .collect(Collectors.toList());
+  }
+
   private DeliveryRequest convertDeliveryRequestDTToDeliveryRequest(
       final DeliveryRequestDTO deliveryRequestDTO) {
     final DeliveryRequest deliveryRequest = new DeliveryRequest();
@@ -151,6 +139,18 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
       final DeliveryRequest deliveryRequest) {
     final DeliveryResponseDTO deliveryResponseDTO = new DeliveryResponseDTO();
     BeanUtils.copyProperties(deliveryRequest, deliveryResponseDTO);
+
+    deliveryResponseDTO.setItem(itemService.convertItemToItemDTO(deliveryRequest.getItem()));
+    deliveryResponseDTO.setCustomer(
+        customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
+
+    if (deliveryRequest.getUser() != null) {
+      deliveryResponseDTO.setUserName(deliveryRequest.getUser().getUsername());
+    }
+    if (deliveryRequest.getRider() != null) {
+      deliveryResponseDTO.setRider(
+          userRegisterService.convertUserToUserDTO(deliveryRequest.getRider()));
+    }
     return deliveryResponseDTO;
   }
 
