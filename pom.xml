@@ -71,6 +71,12 @@
             <version>2.0.1.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>xyz.downgoon</groupId>
+            <artifactId>snowflake</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

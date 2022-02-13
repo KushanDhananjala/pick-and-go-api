@@ -1,7 +1,6 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -20,6 +19,7 @@ import edu.esoft.sdp.cw.pickandgoapi.enums.DeliveryRequestStatus;
 import edu.esoft.sdp.cw.pickandgoapi.enums.ERole;
 import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
 import edu.esoft.sdp.cw.pickandgoapi.exception.PickAndGoBadRequest;
+import edu.esoft.sdp.cw.pickandgoapi.facade.InternalIdGenerator;
 import edu.esoft.sdp.cw.pickandgoapi.repository.CustomerRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.DeliveryRequestRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.ItemRepository;
@@ -43,6 +43,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
   private final UserRepository userRepository;
   private final ItemRepository itemRepository;
   private final UserRegisterService userRegisterService;
+  private final InternalIdGenerator internalIdGenerator;
 
   @Override
   public DeliveryResponseDTO createDeliveryRequest(final DeliveryRequestDTO deliveryRequest) {
@@ -69,7 +70,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     }
     request.setCustomer(customer);
     request.setItem(item);
-    request.setInternalId(UUID.randomUUID().toString());
+    request.setInternalId(internalIdGenerator.getId());
     request.setStatus(DeliveryRequestStatus.PENDING);
     final DeliveryRequest saveRequest = deliveryRequestRepository.save(request);
 
