@@ -1,8 +1,5 @@
 package edu.esoft.sdp.cw.pickandgoapi.security;
 
-import edu.esoft.sdp.cw.pickandgoapi.security.jwt.AuthEntryPointJwt;
-import edu.esoft.sdp.cw.pickandgoapi.security.jwt.AuthTokenFilter;
-import edu.esoft.sdp.cw.pickandgoapi.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +15,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import edu.esoft.sdp.cw.pickandgoapi.security.jwt.AuthEntryPointJwt;
+import edu.esoft.sdp.cw.pickandgoapi.security.jwt.AuthTokenFilter;
+import edu.esoft.sdp.cw.pickandgoapi.service.impl.UserDetailsServiceImpl;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -28,7 +29,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthEntryPointJwt unauthorizedHandler;
 
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+  public WebSecurityConfig(
+      final UserDetailsServiceImpl userDetailsService,
+      final AuthEntryPointJwt unauthorizedHandler) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
     }
@@ -38,8 +41,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AuthTokenFilter();
     }
 
-    @Override
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+  @Override
+  public void configure(final AuthenticationManagerBuilder authenticationManagerBuilder)
+      throws Exception {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
@@ -54,31 +58,45 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/auth/signin").permitAll()
-                .antMatchers("/auth/signup").permitAll()
-                .antMatchers("/auth/service-check").permitAll()
-                .antMatchers("/common/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
-                .anyRequest().authenticated();
+  @Override
+  protected void configure(final HttpSecurity http) throws Exception {
+    http.cors()
+        .and()
+        .csrf()
+        .disable()
+        .exceptionHandling()
+        .authenticationEntryPoint(unauthorizedHandler)
+        .and()
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authorizeRequests()
+        .antMatchers("/auth/signin")
+        .permitAll()
+        .antMatchers("/auth/signup")
+        .permitAll()
+        .antMatchers("/auth/service-check")
+        .permitAll()
+        .antMatchers("/common/**")
+        .permitAll()
+        .antMatchers("/api/test/**")
+        .permitAll()
+        .antMatchers("/centers/**")
+        .permitAll()
+        .anyRequest()
+        .authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*");
-            }
-        };
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(final CorsRegistry registry) {
+        registry.addMapping("/**").allowedOrigins("*");
+      }
+    };
     }
 
 }
