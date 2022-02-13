@@ -1,5 +1,6 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,6 +99,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
         && rider.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_RIDER))) {
       deliveryRequest.setRider(rider);
       deliveryRequest.setStatus(DeliveryRequestStatus.DRIVER_ASSIGN);
+      deliveryRequest.setAcceptedTime(Instant.now());
       deliveryRequestRepository.save(deliveryRequest);
     } else {
       throw new PickAndGoBadRequest(
