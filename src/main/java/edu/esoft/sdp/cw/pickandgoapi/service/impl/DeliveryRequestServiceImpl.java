@@ -46,14 +46,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
 
   @Override
   public DeliveryResponseDTO createDeliveryRequest(final DeliveryRequestDTO deliveryRequest) {
-    final Customer customer =
-        customerRepository
-            .findById(deliveryRequest.getCustomerUserName())
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        "Customer not found for userName: "
-                            + deliveryRequest.getCustomerUserName()));
+    final Customer customer = getCustomer(deliveryRequest.getCustomerUserName());
 
     final Item item =
         itemRepository
@@ -127,6 +120,29 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public List<DeliveryResponseDTO> getRequestsByCustomerAndFilterByStatus(
+      final String customerUserName, final String status) {
+    final Customer customer = getCustomer(customerUserName);
+    if (StringUtils.hasText(status)) {
+      return deliveryRequestRepository
+          .findAllByCustomerAndStatus(customer, DeliveryRequestStatus.valueOf(status))
+          .stream()
+          .map(this::convertDeliveryRequestTODeliveryResponseDTO)
+          .collect(Collectors.toList());
+    }
+    return deliveryRequestRepository.findAllByCustomer(customer).stream()
+        .map(this::convertDeliveryRequestTODeliveryResponseDTO)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<DeliveryResponseDTO> getAllDeliveryRequests() {
+    return deliveryRequestRepository.findAll().stream()
+        .map(this::convertDeliveryRequestTODeliveryResponseDTO)
+        .collect(Collectors.toList());
+  }
+
   private DeliveryRequest convertDeliveryRequestDTToDeliveryRequest(
       final DeliveryRequestDTO deliveryRequestDTO) {
     final DeliveryRequest deliveryRequest = new DeliveryRequest();
@@ -162,5 +178,11 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
                 new NotFoundException(
                     "Unable to find Delivery Order Request for Internal Id: "
                         + deliveryRequestInternalId));
+  }
+
+  private Customer getCustomer(final String customer) {
+    return customerRepository
+        .findById(customer)
+        .orElseThrow(() -> new NotFoundException("Customer not found for userName: " + customer));
   }
 }

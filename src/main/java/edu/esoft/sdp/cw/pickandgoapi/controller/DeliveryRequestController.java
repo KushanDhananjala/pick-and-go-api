@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.esoft.sdp.cw.pickandgoapi.dto.AssignRiderDTO;
@@ -61,9 +62,21 @@ public class DeliveryRequestController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @PatchMapping("/status/{status}")
-  public ResponseEntity<List<DeliveryResponseDTO>> getDeliveryStatusByStatus(
+  @GetMapping("/by-status/{status}")
+  public ResponseEntity<List<DeliveryResponseDTO>> getDeliveryRequestsByStatus(
       @PathVariable final String status) {
     return ResponseEntity.ok(deliveryRequestService.getRequestsByStatus(status));
+  }
+
+  @GetMapping("/by-customer/{customer}")
+  public ResponseEntity<List<DeliveryResponseDTO>> getDeliveryRequestsByCustomer(
+      @PathVariable final String customer, @RequestParam("status") String status) {
+    return ResponseEntity.ok(
+        deliveryRequestService.getRequestsByCustomerAndFilterByStatus(customer, status));
+  }
+
+  @GetMapping
+  public ResponseEntity<List<DeliveryResponseDTO>> getAll() {
+    return ResponseEntity.ok(deliveryRequestService.getAllDeliveryRequests());
   }
 }

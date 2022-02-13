@@ -17,4 +17,8 @@ public interface DeliveryRequestService {
   void updateStatus( String deliveryRequestInternalId, DeliveryRequestStatus status);
 
   List<DeliveryResponseDTO> getRequestsByStatus(String status);
+
+  List<DeliveryResponseDTO> getRequestsByCustomerAndFilterByStatus(String customer, String status);
+
+  List<DeliveryResponseDTO> getAllDeliveryRequests();
 }
