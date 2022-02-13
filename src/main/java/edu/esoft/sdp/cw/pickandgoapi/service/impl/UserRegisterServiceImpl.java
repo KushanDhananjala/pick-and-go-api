@@ -250,4 +250,12 @@ public class UserRegisterServiceImpl implements UserRegisterService {
         return salt.toString();
     }
 
+    @Override
+    public UserDTO convertUserToUserDTO(final User user) {
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+
+        return userDTO;
+    }
+
 }

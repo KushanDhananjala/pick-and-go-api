@@ -25,6 +25,7 @@ import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
 import edu.esoft.sdp.cw.pickandgoapi.service.CustomerService;
 import edu.esoft.sdp.cw.pickandgoapi.service.DeliveryRequestService;
 import edu.esoft.sdp.cw.pickandgoapi.service.ItemService;
+import edu.esoft.sdp.cw.pickandgoapi.service.UserRegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +40,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
   private final CustomerRepository customerRepository;
   private final UserRepository userRepository;
   private final ItemRepository itemRepository;
+  private final UserRegisterService userRegisterService;
 
   @Override
   public DeliveryResponseDTO createDeliveryRequest(final DeliveryRequestDTO deliveryRequest) {
@@ -88,7 +90,22 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
 
   @Override
   public DeliveryResponseDTO getDeliveryRequestByInternalId(final String internalId) {
-    return convertDeliveryRequestTODeliveryResponseDTO(getDeliveryRequest(internalId));
+    final DeliveryRequest deliveryRequest = getDeliveryRequest(internalId);
+    final DeliveryResponseDTO response =
+        convertDeliveryRequestTODeliveryResponseDTO(deliveryRequest);
+
+    response.setItem(itemService.convertItemToItemDTO(deliveryRequest.getItem()));
+    response.setCustomer(
+        customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
+
+    if (deliveryRequest.getUser() != null) {
+      response.setUserName(deliveryRequest.getUser().getUsername());
+    }
+    if (deliveryRequest.getRider() != null) {
+      response.setRider(userRegisterService.convertUserToUserDTO(deliveryRequest.getRider()));
+    }
+
+    return response;
   }
 
   @Override

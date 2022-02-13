@@ -1,5 +1,7 @@
 package edu.esoft.sdp.cw.pickandgoapi.service;
 
+import edu.esoft.sdp.cw.pickandgoapi.dto.UserDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.User;
 import edu.esoft.sdp.cw.pickandgoapi.payload.request.ResetPasswordRequest;
 import edu.esoft.sdp.cw.pickandgoapi.payload.request.SignupRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,4 +18,5 @@ public interface UserRegisterService {
 
     ResponseEntity<?> getAllUsers();
 
+    UserDTO convertUserToUserDTO(User user);
 }
