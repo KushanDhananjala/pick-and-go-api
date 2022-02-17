@@ -1,14 +1,17 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
-import edu.esoft.sdp.cw.pickandgoapi.entity.User;
-import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
-import edu.esoft.sdp.cw.pickandgoapi.security.service.UserDetailsImpl;
+import javax.transaction.Transactional;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import edu.esoft.sdp.cw.pickandgoapi.dto.UserDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.User;
+import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
+import edu.esoft.sdp.cw.pickandgoapi.security.service.UserDetailsImpl;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -28,5 +31,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return UserDetailsImpl.build(user);
 
     }
-
 }

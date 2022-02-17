@@ -1,37 +1,66 @@
 package edu.esoft.sdp.cw.pickandgoapi.controller;
 
-import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import edu.esoft.sdp.cw.pickandgoapi.exception.PickAndGoBadRequest;
 
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(NotFoundException.class)
-    protected ResponseEntity<Object> handleNotFoundError(RuntimeException ex, WebRequest request) {
+  public static final String TIMESTAMP = "timestamp";
+  public static final String MESSAGE = "message";
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
+  @ExceptionHandler(NotFoundException.class)
+  protected ResponseEntity<Object> handleNotFoundError(
+      final RuntimeException ex, final WebRequest request) {
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
+    final Map<String, Object> body = new LinkedHashMap<>();
+    body.put(TIMESTAMP, LocalDateTime.now());
+    body.put(MESSAGE, ex.getMessage());
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<Object> handleInternalServerError(RuntimeException ex, WebRequest request) {
+    return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+  }
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
+  @ExceptionHandler(UsernameNotFoundException.class)
+  protected ResponseEntity<Object> handleUserNameNotFoundError(
+      final UsernameNotFoundException ex, final WebRequest request) {
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    final Map<String, Object> body = new LinkedHashMap<>();
+    body.put(TIMESTAMP, LocalDateTime.now());
+    body.put(MESSAGE, ex.getMessage());
+
+    return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(Exception.class)
+  protected ResponseEntity<Object> handleInternalServerError(
+      final RuntimeException ex, final WebRequest request) {
+
+    final Map<String, Object> body = new LinkedHashMap<>();
+    body.put(TIMESTAMP, LocalDateTime.now());
+    body.put(MESSAGE, ex.getMessage());
+
+    return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(PickAndGoBadRequest.class)
+  protected ResponseEntity<Object> handleBadRequest(final PickAndGoBadRequest ex) {
+
+    final Map<String, Object> body = new LinkedHashMap<>();
+    body.put(TIMESTAMP, LocalDateTime.now());
+    body.put(MESSAGE, ex.getMessage());
+
+    return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+  }
 }
