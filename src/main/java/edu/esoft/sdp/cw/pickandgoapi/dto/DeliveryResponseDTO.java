@@ -1,10 +1,10 @@
 package edu.esoft.sdp.cw.pickandgoapi.dto;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-
 import edu.esoft.sdp.cw.pickandgoapi.enums.DeliveryRequestStatus;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 
 @Data
 public class DeliveryResponseDTO {
@@ -14,7 +14,7 @@ public class DeliveryResponseDTO {
   private String userName;
   private String displayId;
   private CustomerDTO customer;
-  private ItemDTO item;
+  private PackageDTO item;
   private UserDTO rider;
   private BigDecimal deliveryFee;
   private String fromAddress;
