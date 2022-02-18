@@ -62,6 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/auth/signin").permitAll()
         .antMatchers("/auth/signup").permitAll()
+        .antMatchers("/api/otp-generator/**").permitAll()
         .antMatchers("/auth/service-check").permitAll()
         .antMatchers("/common/**").permitAll()
         .antMatchers("/api/test/**").permitAll()

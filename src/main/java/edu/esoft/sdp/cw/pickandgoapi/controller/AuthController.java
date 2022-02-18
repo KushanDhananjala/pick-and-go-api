@@ -58,9 +58,9 @@ public class AuthController {
         ));
     }
 
-    @PreAuthorize("hasRole('ROLE_HEAD_OFFICE_MANAGER')")
+//    @PreAuthorize("hasRole('ROLE_HEAD_OFFICE_MANAGER')")
     @PostMapping(value = "/auth/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) throws Exception {
         return userRegisterService.createUser(signupRequest);
     }
 
