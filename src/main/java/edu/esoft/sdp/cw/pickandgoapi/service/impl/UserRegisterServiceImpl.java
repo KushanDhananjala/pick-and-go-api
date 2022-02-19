@@ -135,6 +135,8 @@ public class UserRegisterServiceImpl implements UserRegisterService {
 
             customerService.save(customerDTO);
             otpService.generateOTP(signupRequest.getMobileNumber());
+        } else if(String.valueOf(ERole.ROLE_RIDER).equals(userEntity.getType())) {
+            otpService.generateOTP(signupRequest.getMobileNumber());
         }
 
         if (String.valueOf(ERole.ROLE_CENTER_MANAGER).equals(userEntity.getType())) {
