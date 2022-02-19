@@ -1,5 +1,6 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
+import edu.esoft.sdp.cw.pickandgoapi.dto.CustomerDTO;
 import edu.esoft.sdp.cw.pickandgoapi.dto.Mail;
 import edu.esoft.sdp.cw.pickandgoapi.dto.UserDTO;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Center;
@@ -15,7 +16,9 @@ import edu.esoft.sdp.cw.pickandgoapi.repository.CenterRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.CenterUserRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.RoleRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
+import edu.esoft.sdp.cw.pickandgoapi.service.CustomerService;
 import edu.esoft.sdp.cw.pickandgoapi.service.EmailService;
+import edu.esoft.sdp.cw.pickandgoapi.service.OTPService;
 import edu.esoft.sdp.cw.pickandgoapi.service.UserRegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +45,11 @@ public class UserRegisterServiceImpl implements UserRegisterService {
     final EmailService emailService;
     final CenterRepository centerRepository;
     final CenterUserRepository centerUserRepository;
+    final CustomerService customerService;
+    final OTPService otpService;
 
     @Override
-    public ResponseEntity<?> createUser(SignupRequest signupRequest) {
+    public ResponseEntity<?> createUser(SignupRequest signupRequest) throws Exception {
 
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return ResponseEntity
@@ -101,6 +106,13 @@ public class UserRegisterServiceImpl implements UserRegisterService {
                         userEntity.setType(String.valueOf(ERole.ROLE_RIDER));
                         userEntity.setStatus(String.valueOf(UserStatus.P));
                         break;
+                    case "mobile":
+                        Role mobile = roleRepository.findByName(ERole.ROLE_MOBILE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(mobile);
+                        userEntity.setType(String.valueOf(ERole.ROLE_MOBILE_USER));
+                        userEntity.setStatus(String.valueOf(UserStatus.A));
+                        break;
                     default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -111,6 +123,21 @@ public class UserRegisterServiceImpl implements UserRegisterService {
 
         userEntity.setRoles(roles);
         userRepository.save(userEntity);
+
+        if(String.valueOf(ERole.ROLE_MOBILE_USER).equals(userEntity.getType())) {
+
+            CustomerDTO customerDTO = new CustomerDTO();
+
+            customerDTO.setCustomerName(signupRequest.getUsername().split("@")[0]);
+            customerDTO.setUserName(signupRequest.getUsername().split("@")[0]);
+            customerDTO.setEmail(signupRequest.getEmail());
+            customerDTO.setMobileNo(signupRequest.getMobileNumber());
+
+            customerService.save(customerDTO);
+            otpService.generateOTP(signupRequest.getMobileNumber());
+        } else if(String.valueOf(ERole.ROLE_RIDER).equals(userEntity.getType())) {
+            otpService.generateOTP(signupRequest.getMobileNumber());
+        }
 
         if (String.valueOf(ERole.ROLE_CENTER_MANAGER).equals(userEntity.getType())) {
 

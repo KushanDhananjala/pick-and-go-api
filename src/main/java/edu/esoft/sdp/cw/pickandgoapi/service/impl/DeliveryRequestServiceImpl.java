@@ -1,20 +1,10 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import edu.esoft.sdp.cw.pickandgoapi.dto.DeliveryRequestDTO;
 import edu.esoft.sdp.cw.pickandgoapi.dto.DeliveryResponseDTO;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Customer;
 import edu.esoft.sdp.cw.pickandgoapi.entity.DeliveryRequest;
-import edu.esoft.sdp.cw.pickandgoapi.entity.Item;
+import edu.esoft.sdp.cw.pickandgoapi.entity.Package;
 import edu.esoft.sdp.cw.pickandgoapi.entity.User;
 import edu.esoft.sdp.cw.pickandgoapi.enums.DeliveryRequestStatus;
 import edu.esoft.sdp.cw.pickandgoapi.enums.ERole;
@@ -23,14 +13,23 @@ import edu.esoft.sdp.cw.pickandgoapi.exception.PickAndGoBadRequest;
 import edu.esoft.sdp.cw.pickandgoapi.facade.InternalIdGenerator;
 import edu.esoft.sdp.cw.pickandgoapi.repository.CustomerRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.DeliveryRequestRepository;
-import edu.esoft.sdp.cw.pickandgoapi.repository.ItemRepository;
+import edu.esoft.sdp.cw.pickandgoapi.repository.PackageRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.UserRepository;
 import edu.esoft.sdp.cw.pickandgoapi.service.CustomerService;
 import edu.esoft.sdp.cw.pickandgoapi.service.DeliveryRequestService;
-import edu.esoft.sdp.cw.pickandgoapi.service.ItemService;
+import edu.esoft.sdp.cw.pickandgoapi.service.PackageService;
 import edu.esoft.sdp.cw.pickandgoapi.service.UserRegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,10 +38,10 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
 
   private final DeliveryRequestRepository deliveryRequestRepository;
   private final CustomerService customerService;
-  private final ItemService itemService;
+  private final PackageService packageService;
   private final CustomerRepository customerRepository;
   private final UserRepository userRepository;
-  private final ItemRepository itemRepository;
+  private final PackageRepository packageRepository;
   private final UserRegisterService userRegisterService;
   private final InternalIdGenerator internalIdGenerator;
 
@@ -50,18 +49,18 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
   public DeliveryResponseDTO createDeliveryRequest(final DeliveryRequestDTO deliveryRequest) {
     final Customer customer = getCustomer(deliveryRequest.getCustomerUserName());
 
-    final Item item =
-        itemRepository
-            .findById(deliveryRequest.getItemId())
-            .orElseThrow(
-                () ->
-                    new NotFoundException("Item not found for id: " + deliveryRequest.getItemId()));
+    final Package aPackage =
+            packageRepository
+                    .findById(deliveryRequest.getItemId())
+                    .orElseThrow(
+                            () ->
+                                    new NotFoundException("Item not found for id: " + deliveryRequest.getItemId()));
 
     final DeliveryRequest request = convertDeliveryRequestDTToDeliveryRequest(deliveryRequest);
 
     if (StringUtils.hasText(deliveryRequest.getUserName())) {
       final User user =
-          userRepository
+              userRepository
               .findByUsername(deliveryRequest.getUserName())
               .orElseThrow(
                   () ->
@@ -70,7 +69,7 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
       request.setUser(user);
     }
     request.setCustomer(customer);
-    request.setItem(item);
+    request.setAPackage(aPackage);
     request.setInternalId(internalIdGenerator.getId());
     request.setStatus(DeliveryRequestStatus.PENDING);
     final DeliveryRequest saveRequest = deliveryRequestRepository.save(request);
@@ -159,9 +158,9 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     final DeliveryResponseDTO deliveryResponseDTO = new DeliveryResponseDTO();
     BeanUtils.copyProperties(deliveryRequest, deliveryResponseDTO);
 
-    deliveryResponseDTO.setItem(itemService.convertItemToItemDTO(deliveryRequest.getItem()));
+    deliveryResponseDTO.setItem(packageService.convertPackageToPackageDTO(deliveryRequest.getAPackage()));
     deliveryResponseDTO.setCustomer(
-        customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
+            customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
 
     if (deliveryRequest.getUser() != null) {
       deliveryResponseDTO.setUserName(deliveryRequest.getUser().getUsername());

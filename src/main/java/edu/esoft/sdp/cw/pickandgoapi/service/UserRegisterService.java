@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface UserRegisterService {
 
-    ResponseEntity<?> createUser(SignupRequest signupRequest);
+    ResponseEntity<?> createUser(SignupRequest signupRequest) throws Exception;
 
     ResponseEntity<?> centerUserPasswordChange(ResetPasswordRequest resetPasswordRequest);
 
