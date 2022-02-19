@@ -1,6 +1,7 @@
 package edu.esoft.sdp.cw.pickandgoapi.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,7 +34,7 @@ public class CenterController {
   }
 
   @GetMapping(value = "/by-status/{status}")
-  public ResponseEntity<List<CenterDTO>> getAllActiveCenters(@PathVariable String status) {
+  public ResponseEntity<List<CenterDTO>> getAllActiveCenters(@PathVariable final String status) {
 
     return ResponseEntity.ok(
         "ACTIVE".equalsIgnoreCase(status)
@@ -61,5 +62,16 @@ public class CenterController {
       log.error(e.getMessage());
       return null;
     }
+  }
+
+  @PostMapping(value = "/nearest-centers")
+  public ResponseEntity<List<CenterDTO>> getNearestCenterByLocations(
+      @RequestBody final Map<String, String> map) {
+
+    final double latitude = Double.parseDouble(map.get("latitude"));
+    final double longitude = Double.parseDouble(map.get("longitude"));
+    final double radius = Double.parseDouble(map.get("radius"));
+
+    return ResponseEntity.ok(centerService.getCenterByRadius(latitude, longitude, radius));
   }
 }

@@ -15,4 +15,6 @@ public interface CenterService {
   CenterDTO getCenterById(Long registrationId);
 
   CenterDTO deleteCenter(Long registrationId);
+
+  List<CenterDTO> getCenterByRadius(double lat, double lon, double radius);
 }
