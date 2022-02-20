@@ -1,5 +1,15 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import edu.esoft.sdp.cw.pickandgoapi.dto.DeliveryRequestDTO;
 import edu.esoft.sdp.cw.pickandgoapi.dto.DeliveryResponseDTO;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Customer;
@@ -21,15 +31,6 @@ import edu.esoft.sdp.cw.pickandgoapi.service.PackageService;
 import edu.esoft.sdp.cw.pickandgoapi.service.UserRegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -50,17 +51,17 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     final Customer customer = getCustomer(deliveryRequest.getCustomerUserName());
 
     final Package aPackage =
-            packageRepository
-                    .findById(deliveryRequest.getItemId())
-                    .orElseThrow(
-                            () ->
-                                    new NotFoundException("Item not found for id: " + deliveryRequest.getItemId()));
+        packageRepository
+            .findById(deliveryRequest.getItemId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException("Item not found for id: " + deliveryRequest.getItemId()));
 
     final DeliveryRequest request = convertDeliveryRequestDTToDeliveryRequest(deliveryRequest);
 
     if (StringUtils.hasText(deliveryRequest.getUserName())) {
       final User user =
-              userRepository
+          userRepository
               .findByUsername(deliveryRequest.getUserName())
               .orElseThrow(
                   () ->
@@ -158,9 +159,10 @@ public class DeliveryRequestServiceImpl implements DeliveryRequestService {
     final DeliveryResponseDTO deliveryResponseDTO = new DeliveryResponseDTO();
     BeanUtils.copyProperties(deliveryRequest, deliveryResponseDTO);
 
-    deliveryResponseDTO.setItem(packageService.convertPackageToPackageDTO(deliveryRequest.getAPackage()));
+    deliveryResponseDTO.setItem(
+        packageService.convertPackageToPackageDTO(deliveryRequest.getAPackage()));
     deliveryResponseDTO.setCustomer(
-            customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
+        customerService.convertCustomerToCustomerDTO(deliveryRequest.getCustomer()));
 
     if (deliveryRequest.getUser() != null) {
       deliveryResponseDTO.setUserName(deliveryRequest.getUser().getUsername());
