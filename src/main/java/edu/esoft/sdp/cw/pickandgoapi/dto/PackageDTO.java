@@ -1,6 +1,5 @@
 package edu.esoft.sdp.cw.pickandgoapi.dto;
 
-import edu.esoft.sdp.cw.pickandgoapi.enums.MiscellaneousTypes;
 import edu.esoft.sdp.cw.pickandgoapi.enums.PackageTypes;
 import lombok.Data;
 
@@ -17,6 +16,6 @@ public class PackageDTO {
     private BigDecimal price;
     private PackageTypes type;
     private int quantity;
-    private MiscellaneousTypes category;
+    private Long miscellaneousTypeId;
 
 }

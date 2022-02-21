@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import edu.esoft.sdp.cw.pickandgoapi.dto.CenterDTO;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Center;
@@ -88,6 +89,17 @@ public class CenterServiceImpl implements CenterService {
     center.setIsActive(ActiveStatus.IsInActive.status);
 
     return convertCenterToCenterDto(centerRepository.save(center));
+  }
+
+  @Override
+  public List<CenterDTO> getCenterByRadius(
+      final double lat, final double lon, final double radius) {
+    final List<Center> nearByCenters = centerRepository.getNearByCenters(lat, lon, radius);
+    if (CollectionUtils.isEmpty(nearByCenters)) {
+      throw new NotFoundException("Unable to find nearest location with in radius: " + radius);
+    }
+
+    return nearByCenters.stream().map(this::convertCenterToCenterDto).collect(Collectors.toList());
   }
 
   private CenterDTO convertCenterToCenterDto(final Center center) {
