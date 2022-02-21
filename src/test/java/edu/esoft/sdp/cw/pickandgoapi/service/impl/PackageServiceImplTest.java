@@ -1,12 +1,11 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
+import edu.esoft.sdp.cw.pickandgoapi.dto.PackageDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.MiscellaneousCharges;
+import edu.esoft.sdp.cw.pickandgoapi.entity.Package;
+import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import edu.esoft.sdp.cw.pickandgoapi.repository.PackageRepository;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,87 +15,93 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
-import edu.esoft.sdp.cw.pickandgoapi.dto.PackageDTO;
-import edu.esoft.sdp.cw.pickandgoapi.entity.Package;
-import edu.esoft.sdp.cw.pickandgoapi.enums.MiscellaneousTypes;
-import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
-import edu.esoft.sdp.cw.pickandgoapi.repository.PackageRepository;
-import lombok.SneakyThrows;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class PackageServiceImplTest {
 
-  @InjectMocks PackageServiceImpl packageService;
-  @Mock private PackageRepository packageRepository;
+    @InjectMocks
+    PackageServiceImpl packageService;
+    @Mock
+    private PackageRepository packageRepository;
 
-  @BeforeEach
-  void setUp() {
+    @Mock
+    private MiscellaneousCharges miscellaneousCharges;
 
-    MockitoAnnotations.openMocks(this);
-  }
+    @BeforeEach
+    void setUp() {
 
-  @Test
-  void save() throws Exception {
-    Package item = new Package();
-    item.setId(1L);
-    item.setCategory(MiscellaneousTypes.ELECTRONIC);
-    item.setPrice(BigDecimal.TEN);
-    PackageDTO packageDTO = new PackageDTO();
-    BeanUtils.copyProperties(item, packageDTO);
-    when(packageRepository.findById(any())).thenReturn(Optional.of(item));
-    when(packageRepository.save(any())).thenReturn(item);
+        MockitoAnnotations.openMocks(this);
+    }
 
-    PackageDTO save = packageService.save(packageDTO);
-    Assertions.assertNotNull(save);
-    Assertions.assertEquals(1L, save.getId());
-  }
+    @Test
+    void save() throws Exception {
 
-  @SneakyThrows
-  @Test
-  void findAll() {
+        Package item = new Package();
+        item.setId(1L);
+        item.setMiscellaneousChargeId(miscellaneousCharges);
+        item.setPrice(BigDecimal.TEN);
+        PackageDTO packageDTO = new PackageDTO();
+        BeanUtils.copyProperties(item, packageDTO);
+        when(packageRepository.findById(any())).thenReturn(Optional.of(item));
+        when(packageRepository.save(any())).thenReturn(item);
 
-    Package item = new Package();
-    item.setId(1L);
-    item.setCategory(MiscellaneousTypes.ELECTRONIC);
-    item.setPrice(BigDecimal.TEN);
+        PackageDTO save = packageService.save(packageDTO);
+        Assertions.assertNotNull(save);
+        Assertions.assertEquals(1L, save.getId());
+    }
 
-    when(packageRepository.findAll()).thenReturn(List.of(item));
-    List<PackageDTO> all = packageService.findAll();
+    @SneakyThrows
+    @Test
+    void findAll() {
 
-    Assertions.assertFalse(CollectionUtils.isEmpty(all));
-  }
+        Package item = new Package();
+        item.setId(1L);
+        item.setMiscellaneousChargeId(miscellaneousCharges);
+        item.setPrice(BigDecimal.TEN);
 
-  @Test
-  void findItemById() {
-    Package item = new Package();
-    item.setId(1L);
-    item.setCategory(MiscellaneousTypes.ELECTRONIC);
-    item.setPrice(BigDecimal.TEN);
-    PackageDTO packageDTO = new PackageDTO();
-    BeanUtils.copyProperties(item, packageDTO);
-    when(packageRepository.findById(any())).thenReturn(Optional.of(item));
+        when(packageRepository.findAll()).thenReturn(List.of(item));
+        List<PackageDTO> all = packageService.findAll();
 
-    PackageDTO res = packageService.findItemById(1L);
-    Assertions.assertNotNull(res);
-    Assertions.assertEquals(1L, res.getId());
-  }
+        Assertions.assertFalse(CollectionUtils.isEmpty(all));
+    }
 
-  @Test
-  void findItemById_exception() {
+    @Test
+    void findItemById() {
+        Package item = new Package();
+        item.setId(1L);
+        item.setMiscellaneousChargeId(miscellaneousCharges);
+        item.setPrice(BigDecimal.TEN);
+        PackageDTO packageDTO = new PackageDTO();
+        BeanUtils.copyProperties(item, packageDTO);
+        when(packageRepository.findById(any())).thenReturn(Optional.of(item));
 
-    when(packageRepository.findById(any())).thenReturn(Optional.empty());
+        PackageDTO res = packageService.findItemById(1L);
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(1L, res.getId());
+    }
 
-    Assertions.assertThrows(NotFoundException.class, () -> packageService.findItemById(1L));
-  }
+    @Test
+    void findItemById_exception() {
 
-  @Test
-  void convertPackageToPackageDTO() {
-    Package item = new Package();
-    item.setId(1L);
-    item.setCategory(MiscellaneousTypes.ELECTRONIC);
-    item.setPrice(BigDecimal.TEN);
+        when(packageRepository.findById(any())).thenReturn(Optional.empty());
 
-    PackageDTO save = packageService.convertPackageToPackageDTO(item);
-    Assertions.assertNotNull(save);
-    Assertions.assertEquals(1L, save.getId());
-  }
+        Assertions.assertThrows(NotFoundException.class, () -> packageService.findItemById(1L));
+    }
+
+    @Test
+    void convertPackageToPackageDTO() {
+        Package item = new Package();
+        item.setId(1L);
+        item.setMiscellaneousChargeId(miscellaneousCharges);
+        item.setPrice(BigDecimal.TEN);
+
+        PackageDTO save = packageService.convertPackageToPackageDTO(item);
+        Assertions.assertNotNull(save);
+        Assertions.assertEquals(1L, save.getId());
+    }
 }
