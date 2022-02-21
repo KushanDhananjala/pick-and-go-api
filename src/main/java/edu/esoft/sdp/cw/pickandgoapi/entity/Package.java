@@ -1,6 +1,5 @@
 package edu.esoft.sdp.cw.pickandgoapi.entity;
 
-import edu.esoft.sdp.cw.pickandgoapi.enums.MiscellaneousTypes;
 import edu.esoft.sdp.cw.pickandgoapi.enums.PackageTypes;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,5 +24,7 @@ public class Package extends Auditable<Long> implements Serializable {
     private BigDecimal price;
     private PackageTypes type;
     private int quantity;
-    private MiscellaneousTypes category;
+    @ManyToOne
+    @JoinColumn(name = "miscellaneousChargeId", referencedColumnName = "id")
+    private MiscellaneousCharges miscellaneousChargeId;
 }

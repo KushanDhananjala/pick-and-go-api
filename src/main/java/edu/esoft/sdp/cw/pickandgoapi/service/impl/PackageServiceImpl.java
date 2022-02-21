@@ -1,8 +1,10 @@
 package edu.esoft.sdp.cw.pickandgoapi.service.impl;
 
 import edu.esoft.sdp.cw.pickandgoapi.dto.PackageDTO;
+import edu.esoft.sdp.cw.pickandgoapi.entity.MiscellaneousCharges;
 import edu.esoft.sdp.cw.pickandgoapi.entity.Package;
 import edu.esoft.sdp.cw.pickandgoapi.exception.NotFoundException;
+import edu.esoft.sdp.cw.pickandgoapi.repository.MiscellaneousChargesRepository;
 import edu.esoft.sdp.cw.pickandgoapi.repository.PackageRepository;
 import edu.esoft.sdp.cw.pickandgoapi.service.PackageService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class PackageServiceImpl implements PackageService {
 
     private final PackageRepository packageRepository;
+    private final MiscellaneousChargesRepository miscellaneousChargesRepository;
 
     @Override
     public PackageDTO save(PackageDTO packageDTO) throws Exception {
@@ -31,6 +34,10 @@ public class PackageServiceImpl implements PackageService {
         Optional<Package> optionalPackage = packageRepository.findById(packageDTO.getId());
 
         optionalPackage.ifPresent(value -> aPackage.setId(value.getId()));
+
+        MiscellaneousCharges miscellaneousCharges = miscellaneousChargesRepository.findById(packageDTO.getMiscellaneousTypeId()).get();
+
+        aPackage.setMiscellaneousChargeId(miscellaneousCharges);
 
         return convertPackageToPackageDTO(packageRepository.save(aPackage));
     }
